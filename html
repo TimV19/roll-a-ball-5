@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2D Spel</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    canvas {
+        display: block;
+        margin: auto;
+        background-color: #f0f0f0;
+    }
+</style>
+</head>
+<body>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<script>
+    // Initialisatie van canvas
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Speler instellingen
+    const player = {
+        x: 50,
+        y: canvas.height / 2,
+        size: 20,
+        speed: 5
+    };
+
+    // Doel instellingen
+    const goal = {
+        x: 0,
+        y: 0,
+        size: 50
+    };
+
+    // Obstakel instellingen
+    const obstacles = [
+        { x: 0, y: 0, size: 50, speed: 2, direction: 1 },
+        { x: 0, y: 0, size: 50, speed: 2, direction: 1 }
+    ];
+
+    // Start het spel
+    reset();
+
+    // Tekenen van de speler
+    function drawPlayer() {
+        ctx.fillStyle = 'red';
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Tekenen van de goal
+    function drawGoal() {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(goal.x - goal.size / 2, goal.y - goal.size / 2, goal.size, goal.size);
+    }
+
+    // Tekenen van de obstakels
+    function drawObstacles() {
+        ctx.fillStyle = 'black';
+        obstacles.forEach(obstacle => {
+            ctx.fillRect(obstacle.x - obstacle.size / 2, obstacle.y - obstacle.size / 2, obstacle.size, obstacle.size);
+        });
+    }
+
+    // Spel loop
+    function gameLoop() {
+        // Wis canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Beweging van de speler
+        if (keys.ArrowUp && player.y > 0) {
+            player.y -= player.speed;
+        }
+        if (keys.ArrowDown && player.y < canvas.height) {
+            player.y += player.speed;
+        }
+        if (keys.ArrowLeft && player.x > 0) {
+            player.x -= player.speed;
+        }
+        if (keys.ArrowRight && player.x < canvas.width) {
+            player.x += player.speed;
+        }
+
+        // Beweging van obstakels
+        obstacles.forEach(obstacle => {
+            if (obstacle.direction === 1) {
+                if (obstacle.x + obstacle.size / 2 < canvas.width) {
+                    obstacle.x += obstacle.speed;
+                } else {
+                    obstacle.direction = -1;
+                }
+            } else {
+                if (obstacle.x - obstacle.size / 2 > 0) {
+                    obstacle.x -= obstacle.speed;
+                } else {
+                    obstacle.direction = 1;
+                }
+            }
+
+            if (obstacle.direction === 1) {
+                if (obstacle.y + obstacle.size / 2 < canvas.height) {
+                    obstacle.y += obstacle.speed;
+                } else {
+                    obstacle.direction = -1;
+                }
+            } else {
+                if (obstacle.y - obstacle.size / 2 > 0) {
+                    obstacle.y -= obstacle.speed;
+                } else {
+                    obstacle.direction = 1;
+                }
+            }
+        });
+
+        // Tekenen van speler, goal en obstakels
+        drawPlayer();
+        drawGoal();
+        drawObstacles();
+
+        // Controleer of de speler de goal heeft bereikt
+        if (player.x + player.size > goal.x - goal.size / 2 &&
+            player.x - player.size < goal.x + goal.size / 2 &&
+            player.y + player.size > goal.y - goal.size / 2 &&
+            player.y - player.size < goal.y + goal.size / 2) {
+            alert("Gewonnen!");
+            reset();
+        }
+
+        // Controleer of de speler een obstakel raakt
+        obstacles.forEach(obstacle => {
+            if (player.x + player.size > obstacle.x - obstacle.size / 2 &&
+                player.x - player.size < obstacle.x + obstacle.size / 2 &&
+                player.y + player.size > obstacle.y - obstacle.size / 2 &&
+                player.y - player.size < obstacle.y + obstacle.size / 2) {
+                alert("Game Over!");
+                reset();
+            }
+        });
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Herstart het spel
+    function reset() {
+        player.x = 50;
+        player.y = canvas.height / 2;
+
+        // Genereer willekeurige positie voor de goal
+        goal.x = Math.floor(Math.random() * (canvas.width - 100)) + 50;
+        goal.y = Math.floor(Math.random() * (canvas.height - 100)) + 50;
+
+        // Genereer willekeurige posities voor de obstakels
+        obstacles.forEach(obstacle => {
+            obstacle.x = Math.floor(Math.random() * (canvas.width - 100)) + 50;
+            obstacle.y = Math.floor(Math.random() * (canvas.height - 100)) + 50;
+        });
+    }
+
+    // Toetsenbordbediening
+    const keys = {};
+    document.addEventListener('keydown', event => {
+        keys[event.key] = true;
+    });
+    document.addEventListener('keyup', event => {
+        keys[event.key] = false;
+    });
+
+    // Start het spel
+    gameLoop();
+</script>
+</body>
+</html>
