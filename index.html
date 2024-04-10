@@ -158,9 +158,16 @@
         goal.y = Math.floor(Math.random() * (canvas.height - 100)) + 50;
 
         // Genereer willekeurige posities voor de obstakels
-        obstacles.forEach(obstacle => {
+        obstacles.forEach((obstacle, index) => {
             obstacle.x = Math.floor(Math.random() * (canvas.width - 100)) + 50;
             obstacle.y = Math.floor(Math.random() * (canvas.height - 100)) + 50;
+
+            // Zorg ervoor dat de eerste obstakel horizontaal beweegt en de tweede verticaal
+            if (index === 0) {
+                obstacle.direction = 1; // horizontaal
+            } else {
+                obstacle.direction = 2; // verticaal
+            }
         });
     }
 
